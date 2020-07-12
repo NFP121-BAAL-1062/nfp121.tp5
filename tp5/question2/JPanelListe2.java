@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.LinkedList;
 import java.util.Map;
+import  java.util.Stack ;
 
 public class JPanelListe2 extends JPanel implements ActionListener, ItemListener {
 
@@ -33,10 +34,12 @@ public class JPanelListe2 extends JPanel implements ActionListener, ItemListener
 
     private List<String> liste;
     private Map<String, Integer> occurrences;
+    private  static  Stack < List < String > > states;
 
     public JPanelListe2(List<String> liste, Map<String, Integer> occurrences) {
         this.liste = liste;
         this.occurrences = occurrences;
+        states =  new  Stack < List < String > > ();
 
         cmd.setLayout(new GridLayout(3, 1));
 
@@ -68,6 +71,16 @@ public class JPanelListe2 extends JPanel implements ActionListener, ItemListener
 
         boutonRechercher.addActionListener(this);
         // à compléter;
+        boutonOccurrences.addActionListener(this);
+        boutonRetirer.addActionListener(this);
+        ordreCroissant.addItemListener(this);
+        ordreDecroissant.addItemListener(this);
+        boutonAnnuler. addActionListener ( new  ActionListener () {
+			public  void  actionPerformed ( ActionEvent  e ) {
+				if ( ! states . isEmpty ())
+					cancel();
+			}
+		});
 
     }
 
@@ -100,20 +113,58 @@ public class JPanelListe2 extends JPanel implements ActionListener, ItemListener
     }
 
     public void itemStateChanged(ItemEvent ie) {
-        if (ie.getSource() == ordreCroissant)
-        ;// à compléter
+          LinkedList < String > temp = null ;
+        if (ie.getSource() == ordreCroissant){
+        List < String > s =  new  LinkedList < String > ();
+			s . addAll (liste);
+			states . push (s);
+			Collections . sort (liste);
+		}// à compléter
         else if (ie.getSource() == ordreDecroissant)
-        ;// à compléter
+         {
+			List < String > s =  new  LinkedList < String > ();
+			s . addAll (liste);
+			states . push (s);
+			Collections . sort (liste, new listComparator ());
+		}
+        // à compléter
 
         texte.setText(liste.toString());
     }
 
     private boolean retirerDeLaListeTousLesElementsCommencantPar(String prefixe) {
         boolean resultat = false;
+        Iterator < String > it = liste . iterator ();
+		while (it . hasNext ()) {
+		    String s = it . next ();
+			if (s . startsWith (prefixe)) {
+				resultat = true ;
+				
+				it . remove ();
+				Integer i = occurrences . get (s);
+				occurrences . remove (s);
+				occurrences . put (s, i - 1 );
+			}
+		}
+		texte . setText (liste . toString ());
         // à compléter
         // à compléter
         // à compléter
         return resultat;
     }
 
+    
+    
+    
+    private  class  listComparator <String> implements  Comparator < String > {
+		public  int  compare ( String  s1 , String  s2 ) {
+			return (( Comparable ) s2) . compareTo (( Comparable ) s1);
+		}
+	}
+	
+     private  static  final  void  cancel () {
+		liste= states . pop();
+		texte.setText(liste.toString ());
+		occurrences =  Chapitre2CoreJava2.occurrencesDesMots (liste);
+	}
 }

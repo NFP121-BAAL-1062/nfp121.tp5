@@ -64,6 +64,10 @@ public class JPanelListe extends JPanel implements ActionListener, ItemListener 
 
         boutonRechercher.addActionListener(this);
         // à compléter;
+        boutonRetirer.addActionListener ( this );
+	boutonOccurrences.addActionListener ( this );
+	ordreCroissant.addItemListener ( this );
+	ordreDecroissant.addItemListener ( this );
 
     }
 
@@ -95,9 +99,9 @@ public class JPanelListe extends JPanel implements ActionListener, ItemListener 
 
     public void itemStateChanged(ItemEvent ie) {
         if (ie.getSource() == ordreCroissant)
-            ;// à compléter
+           Collections . sort (liste); // à compléter
         else if (ie.getSource() == ordreDecroissant)
-            ;// à compléter
+            Collections . sort (liste, new listComparator ());// à compléter
 
         texte.setText(liste.toString());
     }
@@ -107,7 +111,28 @@ public class JPanelListe extends JPanel implements ActionListener, ItemListener 
         // à compléter
         // à compléter
         // à compléter
+        Iterator < String > it = liste . iterator ();
+		while (it . hasNext ()) {
+		    String s = it . next ();
+			if (s . startsWith (prefixe)) {
+				resultat = true ;
+				
+				it . remove ();
+				Integer i = occurrences . get (s);
+				occurrences . remove (s);
+				occurrences . put (s, i - 1 );
+			}
+		}
+		
+		
+		texte . setText (liste . toString ());
         return resultat;
     }
+    
+    private  class  listComparator <String> implements  Comparator < String > {
+		public  int  compare ( String  s1 , String  s2 ) {
+			return (( Comparable ) s2) . compareTo (( Comparable ) s1);
+		}
+	}
 
 }
